@@ -4,31 +4,35 @@ Aura track on raid frame support for oUF lauouts.
 
 ## Element: AuraTrack
 
-Handles the visibility and updating of aura tracker on raid frame.
+Handles creation and updating of aura buttons on raid frame.
 
-### Widgets:
+### Widgets
 
-- `AuraTrack`: A 'Texture" to represent spell duration.
+-   `AuraTrack`: A Frame to hold `Button`s representing buffs.
 
 ### Options
 
--   `.Thickness` : Thickness of the statusbar
--   `.Tracker` : Table of buffs spell id to track, if not spiecified, use default listing
--   `.Texture` : Texture you want to use for status bars
--   `.Icons` : Set to true if you wish to use squared icons instead of status bars
--   `.SpellTextures` : Spell Textures instead of colored squares
--   `.MaxAuras` : Set the max amount of status or icons shows
+-   `.num`: Number of auras to display. Defaults to 4 (number)
+-   `.spacing`: Spacing between each button. Defaults to 6 (number)
+-   `.filter`: Custom filter list for auras to display. Defaults to 'HELPFUL' (string)
+-   `.spells`: Table of spells to track. the table key is a spellID and value is a RGB color.
+-   `.icons`: Use icon own textures, else use the a color specified in the spell table.
+-   `.display`: "INLINE" or "CORNER"
 
-### Example
+#### Example
 
 ```lua
-local AuraTrack = CreateFrame("Frame", nil, Health)
+-- Position and size
+local AuraTrack = CreateFrame("Frame", nil, self)
 AuraTrack:SetAllPoints()
-AuraTrack.Texture = C.Medias.Normal
-AuraTrack.Icons = true
-AuraTrack.SpellTextures = true
-AuraTrack.Thickness = 5
-AuraTrack.Font = C.Medias.Font
+AuraTrack.icons = true
+AuraTrack.num = 4
+AuraTrack.spacing = 6
+AuraTrack.filter = "HELPFUL"
+AuraTrack.spells = {
+    [139] = oUF:CreateColor(0.40, 0.70, 0.20), -- Renew
+}
 
+-- Register with oUF
 self.AuraTrack = AuraTrack
 ```
