@@ -1,6 +1,6 @@
 ## Interface: 100207
 ## Author: Tukz, Luaerror
-## Version: 1.1.0
+## Version: 1.2.0
 ## Title: oUF_AuraTrack
 ## Notes: Aura track on raid frame support for oUF lauouts.
 ## RequiredDeps: oUF
