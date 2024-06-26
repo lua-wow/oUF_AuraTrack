@@ -1,7 +1,7 @@
 --[[
 	# Element: AuraTrack
 
-	Handles creation and updating of aura buttons on raid frame.
+	Handles creation and updating of aura buttons on raid frames.
 
 	## Widgets
 
@@ -11,10 +11,10 @@
 
 	.num			- Number of auras to display. Defaults to 4 (number)
 	.spacing		- Spacing between each button. Defaults to 6 (number)
-	.filter         - Custom filter list for auras to display. Defaults to 'HELPFUL' (string)
 	.spells			- Table of spells to track. the table key is a spellID and value is a RGB color.
 	.icons			- Use icon own textures, else use the a color specified in the spell table.
-	.display		- "INLINE" or "CORNER"
+	.display		- Setup how icons are displayed inside the unit frame. Options: "INLINE" or "CORNER". Default: "INLINE"
+	.onlyShowPlayer - Shows only auras created by player/vehicle (boolean)
 
 	## Example
 
@@ -600,7 +600,10 @@ local function Update(self, event, unit, info)
 	element.num = element.num or 4
 	element.spacing = element.spacing or 6
 	element.size = (element:GetWidth() / element.num) - (element.spacing) - (element.spacing / (element.num))
-	element.filter = element.filter or "HELPFUL"
+	element.filter = "HELPFUL"
+	if (element.onlyShowPlayer) then
+		element.filter = element.filter .. "|PLAYER"
+	end
 
 	if (element.PreUpdate) then
 		element:PreUpdate(unit, isFullUpdate)
@@ -725,6 +728,7 @@ local function Enable(self)
 		element.createdButtons = element.createdButtons or 0
 		element.anchoredButtons = 0
 		element.visibleButtons = 0
+		element.onlyShowPlayer = (type(element.onlyShowPlayer) == "boolean" and element.onlyShowPlayer) or (type(element.onlyShowPlayer) ~= "boolean" and true)
 		element.spells = element.spells or Spells
 		element.icons = element.icons or false
 
