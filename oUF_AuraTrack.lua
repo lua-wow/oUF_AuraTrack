@@ -11,22 +11,31 @@
 
 	.num			- Number of auras to display. Defaults to 4 (number)
 	.spacing		- Spacing between each button. Defaults to 6 (number)
-	.spells			- Table of spells to track. the table key is a spellID and value is a RGB color.
-	.icons			- Use icon own textures, else use the a color specified in the spell table.
+	.spells			- Table of spells to track. the table key is a spellID and value is category.
 	.display		- Setup how icons are displayed inside the unit frame. Options: "INLINE" or "CORNER". Default: "INLINE"
 	.onlyShowPlayer - Shows only auras created by player/vehicle (boolean)
+
+	### Spell Categories
+	
+	"heal"		-- display heals casted by the player only, like 'Renew', 'Regrowth', etc.
+	"buff"		-- display auras casted by the player only, like 'Power Infustion'.
+	"raid"		-- display auras casted by any unit which affects other units, like 'Power Word: Barrier', 'Pain Supression', 'Life Cocoon', etc.
+	"defensive" -- display auras casted by a unit on itself, like 'Dispersion', 'Shield Wall', 'Dampen Harm', etc.
 
 	## Example
 
 		-- Position and size
 		local AuraTrack = CreateFrame("Frame", nil, self)
 		AuraTrack:SetAllPoints()
-		AuraTrack.icons = true
 		AuraTrack.num = 4
 		AuraTrack.spacing = 6
 		AuraTrack.filter = "HELPFUL"
 		AuraTrack.spells = {
-			[139] = oUF:CreateColor(0.40, 0.70, 0.20), -- Renew
+			[17]    = "heal", -- Power Word: Shield ("heal" display only buffs casted by player)
+			[10060] = "buff", -- Power Infusion
+			[33206] = "raid", -- Pain Suppression
+			[81782] = "raid", -- Power World: Barrier
+			[47585] = "defensive", -- Dispersion
 		}
 
 		-- Register with oUF
@@ -39,488 +48,593 @@ assert(oUF, "oUF_AuraTrack as unable to locate oUF install.")
 
 local _, class = UnitClass("player")
 
--- colors
-local red = oUF:CreateColor(0.89, 0.10, 0.10)
-local orange = oUF:CreateColor(0.89, 0.45, 0.00)
-local gray = oUF:CreateColor(0.49, 0.60, 0.55)
-local gray_dark = oUF:CreateColor(0.33, 0.37, 0.47)
-local white = oUF:CreateColor(1.00, 1.00, 1.00)
-local yellow = oUF:CreateColor(1.00, 1.00, 0.07)
-local yellow_light = oUF:CreateColor(1.00, 1.00, 0.66)
-local green = oUF:CreateColor(0.20, 0.80, 0.20)
-local green_yellow = oUF:CreateColor(0.83, 1.00, 0.25)
-local green_spring = oUF:CreateColor(0.05, 1.00, 0.50)
-local pink = oUF:CreateColor(0.80, 0.40, 0.80)
-local violet = oUF:CreateColor(0.70, 0.30, 0.70)
-local purple = oUF:CreateColor(0.40, 0.20, 0.80)
-local purple_light = oUF:CreateColor(0.54, 0.21, 0.78)
-local blue = oUF:CreateColor(0.12, 0.56, 1.00)
-local blue_mana = oUF:CreateColor(0.31, 0.45, 0.63)
-local turquoise = oUF:CreateColor(0.20, 0.80, 0.80)
-local aquamarine = oUF:CreateColor(0.17, 1.00, 0.75)
-local brown = oUF:CreateColor(0.78, 0.61, 0.43)
-
 -- spell table
 local spells = {}
 
 if oUF.isRetail then
 	spells = {
 		["DEMONHUNTER"] = {
-			[196718] = purple, 	-- Darkness
+			[196718] = "raid", 	-- Darkness
+			[196555] = "defensive", -- Netherwalk
+        	[198589] = "defensive", -- Blur
+        	-- [187827] = "defensive", -- Metamorphosis
 		},
 		["DEATHKNIGHT"] = {
-			[145629] = purple, -- Anti-Magic Zone
+			[145629] = "raid", -- Anti-Magic Zone
+			-- Blood
+			[48707]  = "defensive", -- Anti-Magic Shell
+			[48792]  = "defensive", -- Icebound Fortitude
+			[49028]  = "defensive", -- Dancing Rune Weapon
+			[49039]  = "defensive", -- Lichborne
+			[55233]  = "defensive", -- Vampiric Blood
+			[194679] = "defensive", -- Rune Tap
 		},
 		["EVOKER"] = {
-			[357170] = yellow, -- Time Dilation
-			[364343] = yellow_light, -- Echo
-			[373862] = orange, -- Temporal Anomally
-			[363502] = green, -- Dream Flight
-			[366155] = green_yellow, -- Reversion
-			[382614] = blue, -- Dream Breath
+			-- Preservation
+			[357170] = "raid", -- Time Dilation
+			[374227] = "raid", -- Zephyr
+			[374348] = "raid", -- Renewing Blaze
+			[378441] = "raid", -- Time Stop (PvP)
+			[364343] = "heal", -- Echo
+			[373862] = "heal", -- Temporal Anomally
+			[363502] = "heal", -- Dream Flight
+			[366155] = "heal", -- Reversion
+			[382614] = "heal", -- Dream Breath
+
+			[363916] = "defensive", -- Obsidian Scales
+			-- [374348] = "defensive", -- Renewing Blaze
+			[370960] = "defensive", -- Emerald Communion
+			[431872] = "defensive", -- Temporality (Chronowarden Hero Talent)
+			[377088] = "defensive", -- Rush of Vitality
 		},
 		["DRUID"] = {
-			[774]    = pink, -- Rejuvenation
-			[155777] = pink, -- Rejuvenation (Germination)
-			[8936]   = green, -- Regrowth
-			[48438]  = green_yellow, -- Wild Growth
-			[33763]  = gray_dark, -- Lifebloom (Normal version)
-			[188550] = gray_dark, -- Lifebloom (Legendary version)
-			[29166]  = gray, -- Inervate
-			[102342] = orange, -- Ironbark
-			[102351] = green_spring, -- Cenarion Ward (Initial Buff)
-			[102352] = green_spring, -- Cenarion Ward (HoT)
-			[157982] = white, -- Tranquility
-			[200389] = yellow_light, -- Cultivation
-			[207386] = blue, -- Spring Blossoms
+			[22812]  = "defensive", -- Barkskin
+
+			-- Balance
+			[29166]  = "raid", -- Inervate
+
+			-- Guardian
+			[22842]  = "defensive", -- Frenzied Regeneration
+			[61336]  = "defensive", -- Survival Instincts
+			[102558] = "defensive", -- Incarnation: Guardian of Ursoc
+			[200851] = "defensive", -- Rage of the Sleeper
+
+			-- Feral
+
+			-- Restoration
+			[102342] = "raid", -- Ironbark
+			[157982] = "raid", -- Tranquility
+			[774]    = "heal", -- Rejuvenation
+			[8936]   = "heal", -- Regrowth
+			[33763]  = "heal", -- Lifebloom (Normal version)
+			[48438]  = "heal", -- Wild Growth
+			[102351] = "heal", -- Cenarion Ward (Initial Buff)
+			[102352] = "heal", -- Cenarion Ward (HoT)
+			[155777] = "heal", -- Rejuvenation (Germination)
+			[188550] = "heal", -- Lifebloom (Legendary version)
+			[200389] = "heal", -- Cultivation
+			[207386] = "heal", -- Spring Blossoms
+
+			-- (Crenna Earth-Daughter - Follower Dungeon)
+			[419204] = "heal", -- Rejuvenation
+			[419287] = "heal", -- Regrowth
+			[419207] = "raid", -- Lifebloom
+			[419344] = "raid", -- wild-growth
 		},
 		["HUNTER"] = {
-			[136] = green, -- Mend Pet
-			[272790] = red, -- Frenzy
+			[136] 	 = "heal", -- Mend Pet
+			[272790] = "buff", -- Frenzy
+			[186265] = "defensive", -- Aspect of the Turtle
+        	[264735] = "defensive", -- Survival of the Fittest
 		},
 		["MAGE"] = {
-			[11426] = blue, -- Ice Barrier (Mass Barrier)
+			[414664] = "raid", -- Mass Invisibility
+            [414661] = "raid", -- Ice Barrier (Mass Barrier)
+            [414662] = "raid", -- Blazing Barrier (Mass Barrier)
+            [414663] = "raid", -- Prismatic Barrier (Mass Barrier)
+
+			[80353]  = "buff", -- Time Warp
+			[11426]  = "defensive", -- Ice Barrier
+			[45438]  = "defensive", -- Ice Block
+			-- [55342]  = "defensive", -- Mirror Image
+			-- [113862] = "defensive", -- Greater Invisibility
+            [235313] = "defensive", -- Blazing Barrier
+            [235450] = "defensive", -- Prismatic Barrier
+			[342246] = "defensive", -- Alter Time
+			[414658] = "defensive", -- Ice Cold
 		},
 		["MONK"] = {
-			[119611] = green, -- Renewing Mist
-			[116849] = green_yellow, -- Life Cocoon
-			[124682] = yellow_light, -- Enveloping Mist
+			[115203] = "defensive", -- Fortifying Brew
+			[122278] = "defensive", -- Dampen Harm
+			[122783] = "defensive", -- Diffuse Magic
+			-- Brewmaster
+			[115176] = "defensive", -- Zen Meditation
+			-- Windwalker
+			[125174] = "defensive", -- Touch of Karma
+			-- Mistweaver
+			[116849] = "raid", -- Life Cocoon
+			[119611] = "heal", -- Renewing Mist
+			[124682] = "heal", -- Enveloping Mist
+			[443113] = "heal", -- Strenght of the Black Ox
+
 		},
 		["PALADIN"] = {
-			[53563]  = violet, -- Beacon of Light
-			[156910] = violet, -- Beacon of Faith
-			[200025] = violet, -- Beacon of Virtue
-			[1022]   = aquamarine,-- Blessing of Protection
-			[388011] = blue, -- Blessing of Winter
-			[1044]   = orange, -- Blessing of Freedom
-			[388010] = orange, -- Blessing of Autumn
-			[6940]   = red, -- Blessing of Sacrifice
-			[204018] = red, -- Blessing of Spellwarding
-			[388007] = yellow, -- Blessing of Summer
-			[388013] = green, -- Blessing of Spring
-			[287280] = green, -- Glimmer of Light (Artifact HoT)
-			[395180] = green, -- Barrier of Faith
-			[200654] = yellow_light, -- Tyr's Deliverance
+			[498]	 = "defensive", -- Divine Protection
+			[642]	 = "defensive", -- Divine Shield
+			[1022]   = "raid", -- Blessing of Protection
+			[1044]   = "raid", -- Blessing of Freedom
+			[6940]   = "raid", -- Blessing of Sacrifice
+			[204018] = "raid", -- Blessing of Spellwarding
+			[210256] = "raid", -- Blessing of Sanctuary (PvP)
+
+			-- Holy
+			[53563]  = "heal", -- Beacon of Light
+			[156910] = "heal", -- Beacon of Faith
+			[200025] = "heal", -- Beacon of Virtue
+			[200654] = "heal", -- Tyr's Deliverance
+			[287280] = "heal", -- Glimmer of Light (Artifact HoT)
+			[395180] = "heal", -- Barrier of Faith
+			[31821]  = "raid", -- Aura Mastery
+			[388007] = "buff", -- Blessing of Summer
+			[388010] = "buff", -- Blessing of Autumn
+			[388011] = "buff", -- Blessing of Winter
+			[388013] = "buff", -- Blessing of Spring
+
+			-- Protection
+			[432496] = "buff", -- Holy Bulwark
+			[432502] = "buff", -- Sacred Weapon
+			[31850]  = "defensive", -- Ardent Defender
+			[212641] = "defensive", -- Guardian of Ancient Kings
+			[205191] = "defensive", -- Eye for an Eye
+			[389539] = "defensive", -- Sentinel
+			[184662] = "defensive", -- Shield of Vengeance
+
+			-- Retribution
+
+			-- [1022] = true, -- 保护祝福 - Blessing of Protection
+			-- [6940] = true, -- 牺牲祝福 - Blessing of Sacrifice
+			-- [204018] = true, -- 破咒祝福 - Blessing of Spellwarding
+			-- [210256] = true, -- 庇护祝福 - Blessing of Sanctuary
+			[228050] = "unknown", -- Divine Shield
 		},
 		["PRIEST"] = {
-			[194384] = yellow_light, -- Atonement
-			[214206] = yellow_light, -- Atonement (PvP)
-			[41635]  = violet, -- Prayer of Mending
-			[139]    = green, -- Renew
-			[17]     = red, -- Power Word: Shield
-			[47788]  = white, -- Guardian Spirit
-			[33206]  = white, -- Pain Suppression
-			[81782]  = yellow, -- Power World: Barrier
-			[193065] = purple, -- Protective Light
-			[10060]  = blue, -- Power Infusion
+			[17]     = "heal", -- Power Word: Shield
+			[139]    = "heal", -- Renew
+			[10060]  = "buff", -- Power Infusion
+
+			-- Discipline
+			[33206]  = "raid", -- Pain Suppression
+			[81782]  = "raid", -- Power World: Barrier
+			[194384] = "heal", -- Atonement
+			[214206] = "heal", -- Atonement (PvP)
+
+			-- Holy
+			[47788]  = "raid", -- Guardian Spirit
+			[197268] = "raid", -- Ray of Hope (PvP)
+			[213610] = "raid", -- Holy Ward (PvP)
+			[41635]  = "heal", -- Prayer of Mending
+			[193065] = "heal", -- Protective Light
+
+			-- Shadow
+			[47585] = "defensive", -- Dispersion
+			-- Vampiric Embrace
+			-- [19236] = true, -- 绝望祷言 - Desperate Prayer
+			-- [586] = true, -- 渐隐术 -- TODO: 373446 通透影像 - Fade
+			-- [193065] = true, -- 防护圣光 - Protective Light
+			-- [27827] = true, -- 救赎之魂 - Spirit of Redemption
 		},
 		["ROGUE"] = {
-			[57934] = yellow_light, -- Tricks of the Trade
+			[1966]   = "defensive", -- Feint
+			[5277]   = "defensive", -- Evasion
+			[31224]  = "defensive", -- Cloak of Shadows
+			[57934]  = "buff", -- Tricks of the Trade
+			[114018] = "raid", -- Shroud of Concealment (player)
+			[115834] = "raid", -- Shroud of Concealment (group)
 		},
 		["SHAMAN"] = {
-			[974]   = orange, -- Earth Shield
-			[61295] = violet, -- Riptide
-			[98008] = green_yellow, -- Spirit Link Totem
+			[108271] = "defensive", -- Astral Shift
+			-- Elemental
+			-- Enhancement
+			-- Restoration
+			[974]    = "heal", -- Earth Shield
+			[61295]  = "heal", -- Riptide
+			[8178]   = "raid", -- Grounding Totem
+			[98008]	 = "raid", -- Spirit Link Totem
+			[201633] = "raid", -- Earthen Wall
+			[201657] = "raid", -- Earthen Wall
+			[383018] = "raid", -- Stoneskin
+
+			[409293] = "defensive", -- Burrow (PvP)
+			[114893] = "defensive", -- Stone Bulwark
 		},
 		["WARLOCK"] = {
-			[193396] = purple, -- Demonic Empowerment
+			[193396] = "buff", -- Demonic Empowerment
+			[104773] = "defensive", -- Unending Resolve
+			[212295] = "defensive", -- Nether Ward (PvP)
+			[108416] = "defensive", -- Dark Pact
 		},
 		["WARRIOR"] = {
-			[3411]	 = yellow, -- Intervene
-			[97462]	 = brown, -- Rallying Cry
-			[114030] = red, -- Vigilance
+			[3411]	 = "raid", -- Intervene
+			[97462]	 = "raid", -- Rallying Cry
+			[114030] = "raid", -- Vigilance
+			[213871] = "raid", -- Bodyguard (PvP)
+			[871]	 = "defensive", -- Shield Wall
+			[12975]  = "defensive", -- Last Stand
+			[23920]  = "defensive", -- Spell Reflection
+			[118038] = "defensive", -- Die by the Sword
+			[184364] = "defensive", -- Enraged Regeneration
 		}
 	}
 elseif oUF.isCata then
 	spells = {
 		["DEATHKNIGHT"] = {
-			[57330]	= gray, -- Horn of Winter
+			[57330]	= "raid", -- Horn of Winter
 		},
 		["DRUID"] = {
-			[774]	 = pink, -- Rejuvenation
-			[8936]	 = green, -- Regrowth
-			[33763]  = gray_dark, -- Lifebloom
-			[48438]  = green_yellow, -- Wild Growth
-			[157982] = white, -- Tranquility
+			[774]	 = "heal", -- Rejuvenation
+			[8936]	 = "heal", -- Regrowth
+			[33763]  = "heal", -- Lifebloom
+			[48438]  = "heal", -- Wild Growth
+			[157982] = "raid", -- Tranquility
 		},
 		["HUNTER"] = {
-			[24604]	= red, -- Furious Howl
-			[34477]	= blue, -- Misdirection
+			[24604]	= "buff", -- Furious Howl
+			[34477]	= "raid", -- Misdirection
 		},
 		["PALADIN"] = {
-			[138]   = green_spring, -- Hand of Salvation
-			[1022]  = aquamarine, -- Hand of Protection
-			[1044]  = orange, -- Hand of Freedom
-			[6940]  = red, -- Hand of Sacrifice
-			[31821] = yellow, -- Aura Mastery
-			[53563] = violet, -- Beacon of Light
-			[70940] = purple, -- Divine Guardian
-			[82327] = yellow_light, -- Holy Radiance
-			[86273] = turquoise, -- Illuminated Healing
+			[138]   = "raid", -- Hand of Salvation
+			[1022]  = "raid", -- Hand of Protection
+			[1044]  = "raid", -- Hand of Freedom
+			[6940]  = "raid", -- Hand of Sacrifice
+			[31821] = "raid", -- Aura Mastery
+			[53563] = "heal", -- Beacon of Light
+			[70940] = "defensive", -- Divine Guardian
+			[82327] = "heal", -- Holy Radiance
+			[86273] = "heal", -- Illuminated Healing
 		},
 		["PRIEST"] = {
-			[17]	= red, -- Power Word Shield
-			[139]	= green, -- Renew
-			[6346]	= orange, -- Fear Ward
-			[10060] = blue, -- Power Infusion
-			[33076]	= violet, -- Prayer of Mending
-			[33206] = white, -- Pain Suppression
-			[47788]	= white, -- Guardian Spirit
-			[62618] = yellow, -- Power World: Barrier
-			[64844] = yellow_light, -- Divine Hymn
-			[64904] = turquoise, -- Hymn of Hope
-			[47930] = green_yellow, -- Grace (Rank 1)
-			[77613] = green_yellow, -- Grace (Rank 2)
+			[17]	= "heal", -- Power Word Shield
+			[139]	= "heal", -- Renew
+			[6346]	= "buff", -- Fear Ward
+			[10060] = "buff", -- Power Infusion
+			[33076]	= "heal", -- Prayer of Mending
+			[33206] = "raid", -- Pain Suppression
+			[47788]	= "raid", -- Guardian Spirit
+			[62618] = "raid", -- Power World: Barrier
+			[64844] = "raid", -- Divine Hymn
+			[64904] = "raid", -- Hymn of Hope
+			[47930] = "heal", -- Grace (Rank 1)
+			[77613] = "heal", -- Grace (Rank 2)
 		},
 		["ROGUE"] = {
-			[57934] = yellow_light, -- Tricks of the Trade
+			[57934] = "raid", -- Tricks of the Trade
 		},
 		["SHAMAN"] = {
-			[974]	= orange, -- Earth Shield
-			[61295] = violet, -- Riptide
-			[98008]	= green_yellow,	-- Spirit Link Totem
+			[974]	= "heal", -- Earth Shield
+			[61295] = "heal", -- Riptide
+			[98008]	= "raid", -- Spirit Link Totem
 		},
 		["WARRIOR"] = {
-			[469]  = purple,	-- Commanding Shout
-			[6673] = gray,		-- Battle Shout
+			[469]  = "raid", -- Commanding Shout
+			[6673] = "raid", -- Battle Shout
 		}
 	}
 else
 	spells = {
 		["DEATHKNIGHT"] = {
-			[57330] = oUF.isWrath and gray or nil, -- Horn of Winter
+			[57330] = oUF.isWrath and "buff" or nil, -- Horn of Winter
 		},
 		["DRUID"] = {
-			[1126]	= turquoise, -- Mark of the Wild (Rank 1)
-			[5232]	= turquoise, -- Mark of the Wild (Rank 2)
-			[6756]	= turquoise, -- Mark of the Wild (Rank 3)
-			[5234]	= turquoise, -- Mark of the Wild (Rank 4)
-			[8907]	= turquoise, -- Mark of the Wild (Rank 5)
-			[9884]	= turquoise, -- Mark of the Wild (Rank 6)
-			[9885]	= turquoise, -- Mark of the Wild (Rank 7)
-			[26990]	= turquoise, -- Mark of the Wild (Rank 8)
-			[48469]	= turquoise, -- Mark of the Wild (Rank 9)
-			[21849]	= turquoise, -- Gift of the Wild (Rank 1)
-			[21850]	= turquoise, -- Gift of the Wild (Rank 2)
-			[26991]	= turquoise, -- Gift of the Wild (Rank 3)
-			[48470]	= turquoise, -- Gift of the Wild (Rank 4)
+			[1126]	= "raid", -- Mark of the Wild (Rank 1)
+			[5232]	= "raid", -- Mark of the Wild (Rank 2)
+			[6756]	= "raid", -- Mark of the Wild (Rank 3)
+			[5234]	= "raid", -- Mark of the Wild (Rank 4)
+			[8907]	= "raid", -- Mark of the Wild (Rank 5)
+			[9884]	= "raid", -- Mark of the Wild (Rank 6)
+			[9885]	= "raid", -- Mark of the Wild (Rank 7)
+			[26990]	= "raid", -- Mark of the Wild (Rank 8)
+			[48469]	= "raid", -- Mark of the Wild (Rank 9)
+			[21849]	= "raid", -- Gift of the Wild (Rank 1)
+			[21850]	= "raid", -- Gift of the Wild (Rank 2)
+			[26991]	= "raid", -- Gift of the Wild (Rank 3)
+			[48470]	= "raid", -- Gift of the Wild (Rank 4)
 
-			[467]	= brown, -- Thorns (Rank 1)
-			[782]	= brown, -- Thorns (Rank 2)
-			[1075]	= brown, -- Thorns (Rank 3)
-			[8914]	= brown, -- Thorns (Rank 4)
-			[9756]	= brown, -- Thorns (Rank 5)
-			[9910]	= brown, -- Thorns (Rank 6)
-			[26992]	= brown, -- Thorns (Rank 7)
-			[53307]	= brown, -- Thorns (Rank 8)
+			[467]	= "raid", -- Thorns (Rank 1)
+			[782]	= "raid", -- Thorns (Rank 2)
+			[1075]	= "raid", -- Thorns (Rank 3)
+			[8914]	= "raid", -- Thorns (Rank 4)
+			[9756]	= "raid", -- Thorns (Rank 5)
+			[9910]	= "raid", -- Thorns (Rank 6)
+			[26992]	= "raid", -- Thorns (Rank 7)
+			[53307]	= "raid", -- Thorns (Rank 8)
 
-			[774]	= pink, -- Rejuvenation (Rank 1)
-			[1058]	= pink, -- Rejuvenation (Rank 2)
-			[1430]	= pink, -- Rejuvenation (Rank 3)
-			[2090]	= pink, -- Rejuvenation (Rank 4)
-			[2091]	= pink, -- Rejuvenation (Rank 5)
-			[3627]	= pink, -- Rejuvenation (Rank 6)
-			[8910]	= pink, -- Rejuvenation (Rank 7)
-			[9839]	= pink, -- Rejuvenation (Rank 8)
-			[9840]	= pink, -- Rejuvenation (Rank 9)
-			[9841]	= pink, -- Rejuvenation (Rank 10)
-			[25299]	= pink, -- Rejuvenation (Rank 11)
-			[26981]	= pink, -- Rejuvenation (Rank 12)
-			[26982]	= pink, -- Rejuvenation (Rank 13)
-			[48440]	= pink, -- Rejuvenation (Rank 14)
-			[48441]	= pink, -- Rejuvenation (Rank 15)
+			[774]	= "heal", -- Rejuvenation (Rank 1)
+			[1058]	= "heal", -- Rejuvenation (Rank 2)
+			[1430]	= "heal", -- Rejuvenation (Rank 3)
+			[2090]	= "heal", -- Rejuvenation (Rank 4)
+			[2091]	= "heal", -- Rejuvenation (Rank 5)
+			[3627]	= "heal", -- Rejuvenation (Rank 6)
+			[8910]	= "heal", -- Rejuvenation (Rank 7)
+			[9839]	= "heal", -- Rejuvenation (Rank 8)
+			[9840]	= "heal", -- Rejuvenation (Rank 9)
+			[9841]	= "heal", -- Rejuvenation (Rank 10)
+			[25299]	= "heal", -- Rejuvenation (Rank 11)
+			[26981]	= "heal", -- Rejuvenation (Rank 12)
+			[26982]	= "heal", -- Rejuvenation (Rank 13)
+			[48440]	= "heal", -- Rejuvenation (Rank 14)
+			[48441]	= "heal", -- Rejuvenation (Rank 15)
 
-			[8936]	= green, -- Regrowth (Rank 1)
-			[8938]	= green, -- Regrowth (Rank 2)
-			[8939]	= green, -- Regrowth (Rank 3)
-			[8940]	= green, -- Regrowth (Rank 4)
-			[8941]	= green, -- Regrowth (Rank 5)
-			[9750]	= green, -- Regrowth (Rank 6)
-			[9856]	= green, -- Regrowth (Rank 7)
-			[9857]	= green, -- Regrowth (Rank 8)
-			[9858]	= green, -- Regrowth (Rank 9)
-			[26980]	= green, -- Regrowth (Rank 10)
-			[48442]	= green, -- Regrowth (Rank 11)
-			[48443]	= green, -- Regrowth (Rank 12)
+			[8936]	= "heal", -- Regrowth (Rank 1)
+			[8938]	= "heal", -- Regrowth (Rank 2)
+			[8939]	= "heal", -- Regrowth (Rank 3)
+			[8940]	= "heal", -- Regrowth (Rank 4)
+			[8941]	= "heal", -- Regrowth (Rank 5)
+			[9750]	= "heal", -- Regrowth (Rank 6)
+			[9856]	= "heal", -- Regrowth (Rank 7)
+			[9857]	= "heal", -- Regrowth (Rank 8)
+			[9858]	= "heal", -- Regrowth (Rank 9)
+			[26980]	= "heal", -- Regrowth (Rank 10)
+			[48442]	= "heal", -- Regrowth (Rank 11)
+			[48443]	= "heal", -- Regrowth (Rank 12)
 
-			[29166]	= gray, -- Innervate
+			[29166]	= "buff", -- Innervate
 			
-			[33763]	= gray_dark, -- Lifebloom (Rank 1)
-			[48450]	= gray_dark, -- Lifebloom (Rank 2)
-			[48451]	= gray_dark, -- Lifebloom (Rank 3)
+			[33763]	= "heal", -- Lifebloom (Rank 1)
+			[48450]	= "heal", -- Lifebloom (Rank 2)
+			[48451]	= "heal", -- Lifebloom (Rank 3)
 		},
 		["HUNTER"] = {
-			[19506]	= orange, -- Trueshot Aura (Rank 1)
-			[20905]	= orange, -- Trueshot Aura (Rank 2)
-			[20906]	= orange, -- Trueshot Aura (Rank 3)
-			[27066]	= orange, -- Trueshot Aura (Rank 4)
+			[19506]	= "buff", -- Trueshot Aura (Rank 1)
+			[20905]	= "buff", -- Trueshot Aura (Rank 2)
+			[20906]	= "buff", -- Trueshot Aura (Rank 3)
+			[27066]	= "buff", -- Trueshot Aura (Rank 4)
 
-			[13159]	= blue, -- Aspect of the Pack
+			[13159]	= "raid", -- Aspect of the Pack
 
-			[20043]	= aquamarine, -- Aspect of the Wild (Rank 1)
-			[20190]	= aquamarine, -- Aspect of the Wild (Rank 2)
-			[27045]	= aquamarine, -- Aspect of the Wild (Rank 3)
+			[20043]	= "raid", -- Aspect of the Wild (Rank 1)
+			[20190]	= "raid", -- Aspect of the Wild (Rank 2)
+			[27045]	= "raid", -- Aspect of the Wild (Rank 3)
 
-			[24604]	= red, -- Furious Howl (Rank 1)
-			[24605]	= red, -- Furious Howl (Rank 2)
-			[24603]	= red, -- Furious Howl (Rank 3)
-			[24597]	= red, -- Furious Howl (Rank 4)
-			[64494]	= red, -- Furious Howl (Rank 5)
-			[64495]	= red, -- Furious Howl (Rank 6)
+			[24604]	= "buff", -- Furious Howl (Rank 1)
+			[24605]	= "buff", -- Furious Howl (Rank 2)
+			[24603]	= "buff", -- Furious Howl (Rank 3)
+			[24597]	= "buff", -- Furious Howl (Rank 4)
+			[64494]	= "buff", -- Furious Howl (Rank 5)
+			[64495]	= "buff", -- Furious Howl (Rank 6)
 		},
 		["MAGE"] = {
-			[1459]	= blue_mana, -- Arcane Intellect (Rank 1)
-			[1460]	= blue_mana, -- Arcane Intellect (Rank 2)
-			[1461]	= blue_mana, -- Arcane Intellect (Rank 3)
-			[10156] = blue_mana, -- Arcane Intellect (Rank 4)
-			[10157] = blue_mana, -- Arcane Intellect (Rank 5)
-			[27126] = blue_mana, -- Arcane Intellect (Rank 6)
-			[23028] = blue_mana, -- Arcane Brilliance (Rank 1)
-			[27127] = blue_mana, -- Arcane Brilliance (Rank 2)
+			[1459]	= "raid", -- Arcane Intellect (Rank 1)
+			[1460]	= "raid", -- Arcane Intellect (Rank 2)
+			[1461]	= "raid", -- Arcane Intellect (Rank 3)
+			[10156] = "raid", -- Arcane Intellect (Rank 4)
+			[10157] = "raid", -- Arcane Intellect (Rank 5)
+			[27126] = "raid", -- Arcane Intellect (Rank 6)
+			[23028] = "raid", -- Arcane Brilliance (Rank 1)
+			[27127] = "raid", -- Arcane Brilliance (Rank 2)
 
-			[604]	= green_spring, -- Dampen Magic (Rank 1)
-			[8450]	= green_spring, -- Dampen Magic (Rank 2)
-			[8451]	= green_spring, -- Dampen Magic (Rank 3)
-			[10173] = green_spring, -- Dampen Magic (Rank 4)
-			[10174] = green_spring, -- Dampen Magic (Rank 5)
-			[33944] = green_spring, -- Dampen Magic (Rank 6)
+			[604]	= "buff", -- Dampen Magic (Rank 1)
+			[8450]	= "buff", -- Dampen Magic (Rank 2)
+			[8451]	= "buff", -- Dampen Magic (Rank 3)
+			[10173] = "buff", -- Dampen Magic (Rank 4)
+			[10174] = "buff", -- Dampen Magic (Rank 5)
+			[33944] = "buff", -- Dampen Magic (Rank 6)
 
-			[1008]	= aquamarine, -- Amplify Magic (Rank 1)
-			[8455]	= aquamarine, -- Amplify Magic (Rank 2)
-			[10169] = aquamarine, -- Amplify Magic (Rank 3)
-			[10170] = aquamarine, -- Amplify Magic (Rank 4)
-			[27130] = aquamarine, -- Amplify Magic (Rank 5)
-			[33946] = aquamarine, -- Amplify Magic (Rank 6)
+			[1008]	= "buff", -- Amplify Magic (Rank 1)
+			[8455]	= "buff", -- Amplify Magic (Rank 2)
+			[10169] = "buff", -- Amplify Magic (Rank 3)
+			[10170] = "buff", -- Amplify Magic (Rank 4)
+			[27130] = "buff", -- Amplify Magic (Rank 5)
+			[33946] = "buff", -- Amplify Magic (Rank 6)
 
-			[130]	= white, -- Slow Fall
+			[130]	= "buff", -- Slow Fall
 		},
 		["PALADIN"] = {
-			[1044]	= orange, -- Blessing of Freedom
+			[1044]	= "raid", -- Blessing of Freedom
 
-			[6940]	= red, -- Blessing Sacrifice (Rank 1)
-			[20729]	= red, -- Blessing Sacrifice (Rank 2)
-			[27147]	= red, -- Blessing Sacrifice (Rank 3)
-			[27148]	= red, -- Blessing Sacrifice (Rank 4)
+			[6940]	= "raid", -- Blessing Sacrifice (Rank 1)
+			[20729]	= "raid", -- Blessing Sacrifice (Rank 2)
+			[27147]	= "raid", -- Blessing Sacrifice (Rank 3)
+			[27148]	= "raid", -- Blessing Sacrifice (Rank 4)
 
-			[19740]	= violet, -- Blessing of Might (Rank 1)
-			[19834]	= violet, -- Blessing of Might (Rank 2)
-			[19835]	= violet, -- Blessing of Might (Rank 3)
-			[19836]	= violet, -- Blessing of Might (Rank 4)
-			[19837]	= violet, -- Blessing of Might (Rank 5)
-			[19838]	= violet, -- Blessing of Might (Rank 6)
-			[25291]	= violet, -- Blessing of Might (Rank 7)
-			[27140]	= violet, -- Blessing of Might (Rank 8)
-			[25782]	= violet, -- Greater Blessing of Might (Rank 1)
-			[25916]	= violet, -- Greater Blessing of Might (Rank 2)
-			[27141]	= violet, -- Greater Blessing of Might (Rank 3)
+			[19740]	= "raid", -- Blessing of Might (Rank 1)
+			[19834]	= "raid", -- Blessing of Might (Rank 2)
+			[19835]	= "raid", -- Blessing of Might (Rank 3)
+			[19836]	= "raid", -- Blessing of Might (Rank 4)
+			[19837]	= "raid", -- Blessing of Might (Rank 5)
+			[19838]	= "raid", -- Blessing of Might (Rank 6)
+			[25291]	= "raid", -- Blessing of Might (Rank 7)
+			[27140]	= "raid", -- Blessing of Might (Rank 8)
+			[25782]	= "raid", -- Greater Blessing of Might (Rank 1)
+			[25916]	= "raid", -- Greater Blessing of Might (Rank 2)
+			[27141]	= "raid", -- Greater Blessing of Might (Rank 3)
 
-			[19742]	= blue, -- Blessing of Wisdom (Rank 1)
-			[19850]	= blue, -- Blessing of Wisdom (Rank 2)
-			[19852]	= blue, -- Blessing of Wisdom (Rank 3)
-			[19853]	= blue, -- Blessing of Wisdom (Rank 4)
-			[19854]	= blue, -- Blessing of Wisdom (Rank 5)
-			[25290]	= blue, -- Blessing of Wisdom (Rank 6)
-			[27142]	= blue, -- Blessing of Wisdom (Rank 7)
-			[25894]	= blue, -- Greater Blessing of Wisdom (Rank 1)
-			[25918]	= blue, -- Greater Blessing of Wisdom (Rank 2)
-			[27143]	= blue, -- Greater Blessing of Wisdom (Rank 3)
+			[19742]	= "raid", -- Blessing of Wisdom (Rank 1)
+			[19850]	= "raid", -- Blessing of Wisdom (Rank 2)
+			[19852]	= "raid", -- Blessing of Wisdom (Rank 3)
+			[19853]	= "raid", -- Blessing of Wisdom (Rank 4)
+			[19854]	= "raid", -- Blessing of Wisdom (Rank 5)
+			[25290]	= "raid", -- Blessing of Wisdom (Rank 6)
+			[27142]	= "raid", -- Blessing of Wisdom (Rank 7)
+			[25894]	= "raid", -- Greater Blessing of Wisdom (Rank 1)
+			[25918]	= "raid", -- Greater Blessing of Wisdom (Rank 2)
+			[27143]	= "raid", -- Greater Blessing of Wisdom (Rank 3)
 
-			[465]	= purple, -- Devotion Aura (Rank 1)
-			[10290]	= purple, -- Devotion Aura (Rank 2)
-			[643]	= purple, -- Devotion Aura (Rank 3)
-			[10291]	= purple, -- Devotion Aura (Rank 4)
-			[1032]	= purple, -- Devotion Aura (Rank 5)
-			[10292]	= purple, -- Devotion Aura (Rank 6)
-			[10293]	= purple, -- Devotion Aura (Rank 7)
-			[27149]	= purple, -- Devotion Aura (Rank 8)
+			[465]	= "buff", -- Devotion Aura (Rank 1)
+			[10290]	= "buff", -- Devotion Aura (Rank 2)
+			[643]	= "buff", -- Devotion Aura (Rank 3)
+			[10291]	= "buff", -- Devotion Aura (Rank 4)
+			[1032]	= "buff", -- Devotion Aura (Rank 5)
+			[10292]	= "buff", -- Devotion Aura (Rank 6)
+			[10293]	= "buff", -- Devotion Aura (Rank 7)
+			[27149]	= "buff", -- Devotion Aura (Rank 8)
 
-			[19977]	= yellow_light, -- Blessing of Light (Rank 1)
-			[19978]	= yellow_light, -- Blessing of Light (Rank 2)
-			[19979]	= yellow_light, -- Blessing of Light (Rank 3)
-			[27144]	= yellow_light, -- Blessing of Light (Rank 4)
+			[19977]	= "raid", -- Blessing of Light (Rank 1)
+			[19978]	= "raid", -- Blessing of Light (Rank 2)
+			[19979]	= "raid", -- Blessing of Light (Rank 3)
+			[27144]	= "raid", -- Blessing of Light (Rank 4)
 
-			[1022] 	= aquamarine, -- Blessing of Protection (Rank 1)
-			[5599] 	= aquamarine, -- Blessing of Protection (Rank 2)
-			[10278]	= aquamarine, -- Blessing of Protection (Rank 3)
+			[1022] 	= "raid", -- Blessing of Protection (Rank 1)
+			[5599] 	= "raid", -- Blessing of Protection (Rank 2)
+			[10278]	= "raid", -- Blessing of Protection (Rank 3)
 
 			-- [19746]	= concentration_aura, -- Concentration Aura
 			-- [32223]	= crusader_aura, -- Crusader Aura
 
-			[28790]	= yellow, -- Holy Power (armor)
-			[28791]	= yellow, -- Holy Power (attack power)
-			[28793]	= yellow, -- Holy Power (spell damage)
-			[28795]	= yellow, -- Holy Power (mana regeneration)
+			[28790]	= "buff", -- Holy Power (armor)
+			[28791]	= "buff", -- Holy Power (attack power)
+			[28793]	= "buff", -- Holy Power (spell damage)
+			[28795]	= "buff", -- Holy Power (mana regeneration)
 		},
 		["PRIEST"] = {
-			[1243]	= white, -- Power Word: Fortitude (Rank 1)
-			[1244] 	= white, -- Power Word: Fortitude (Rank 2)
-			[1245] 	= white, -- Power Word: Fortitude (Rank 3)
-			[2791] 	= white, -- Power Word: Fortitude (Rank 4)
-			[10937]	= white, -- Power Word: Fortitude (Rank 5)
-			[10938]	= white, -- Power Word: Fortitude (Rank 6)
-			[25389]	= white, -- Power Word: Fortitude (Rank 7)
-			[48161]	= white,	-- Power Word: Fortitude (Rank 8)
-			[21562]	= white, -- Prayer of Fortitude (Rank 1)
-			[21564]	= white, -- Prayer of Fortitude (Rank 2)
-			[25392]	= white, -- Prayer of Fortitude (Rank 3)
-			[48162]	= white, -- Prayer of Fortitude (Rank 4)
+			[1243]	= "raid", -- Power Word: Fortitude (Rank 1)
+			[1244] 	= "raid", -- Power Word: Fortitude (Rank 2)
+			[1245] 	= "raid", -- Power Word: Fortitude (Rank 3)
+			[2791] 	= "raid", -- Power Word: Fortitude (Rank 4)
+			[10937]	= "raid", -- Power Word: Fortitude (Rank 5)
+			[10938]	= "raid", -- Power Word: Fortitude (Rank 6)
+			[25389]	= "raid", -- Power Word: Fortitude (Rank 7)
+			[48161]	= "raid", -- Power Word: Fortitude (Rank 8)
+			[21562]	= "raid", -- Prayer of Fortitude (Rank 1)
+			[21564]	= "raid", -- Prayer of Fortitude (Rank 2)
+			[25392]	= "raid", -- Prayer of Fortitude (Rank 3)
+			[48162]	= "raid", -- Prayer of Fortitude (Rank 4)
 
-			[14752]	= yellow_light, -- Divine Spirit (Rank 1)
-			[14818]	= yellow_light, -- Divine Spirit (Rank 2)
-			[14819]	= yellow_light, -- Divine Spirit (Rank 3)
-			[27841]	= yellow_light, -- Divine Spirit (Rank 4)
-			[25312]	= yellow_light, -- Divine Spirit (Rank 5)
-			[48073]	= yellow_light, -- Divine Spirit (Rank 6)
-			[27681]	= yellow_light, -- Prayer of Spirit (Rank 1)
-			[32999]	= yellow_light, -- Prayer of Spirit (Rank 2)
-			[48074]	= yellow_light, -- Prayer of Spirit (Rank 3)
+			[14752]	= "raid", -- Divine Spirit (Rank 1)
+			[14818]	= "raid", -- Divine Spirit (Rank 2)
+			[14819]	= "raid", -- Divine Spirit (Rank 3)
+			[27841]	= "raid", -- Divine Spirit (Rank 4)
+			[25312]	= "raid", -- Divine Spirit (Rank 5)
+			[48073]	= "raid", -- Divine Spirit (Rank 6)
+			[27681]	= "raid", -- Prayer of Spirit (Rank 1)
+			[32999]	= "raid", -- Prayer of Spirit (Rank 2)
+			[48074]	= "raid", -- Prayer of Spirit (Rank 3)
 
-			[976]	= purple, -- Shadow Protection (Rank 1)
-			[10957]	= purple, -- Shadow Protection (Rank 2)
-			[10958]	= purple, -- Shadow Protection (Rank 3)
-			[25433]	= purple, -- Shadow Protection (Rank 4)
-			[48169]	= purple, -- Shadow Protection (Rank 5)
-			[27683]	= purple, -- Prayer of Shadow Protection (Rank 1)
-			[39374]	= purple, -- Prayer of Shadow Protection (Rank 2)
-			[48170]	= purple, -- Prayer of Shadow Protection (Rank 3)
+			[976]	= "raid", -- Shadow Protection (Rank 1)
+			[10957]	= "raid", -- Shadow Protection (Rank 2)
+			[10958]	= "raid", -- Shadow Protection (Rank 3)
+			[25433]	= "raid", -- Shadow Protection (Rank 4)
+			[48169]	= "raid", -- Shadow Protection (Rank 5)
+			[27683]	= "raid", -- Prayer of Shadow Protection (Rank 1)
+			[39374]	= "raid", -- Prayer of Shadow Protection (Rank 2)
+			[48170]	= "raid", -- Prayer of Shadow Protection (Rank 3)
 
-			[17]	= red, -- Power Word: Shield (Rank 1)
-			[592]	= red, -- Power Word: Shield (Rank 2)
-			[600]	= red, -- Power Word: Shield (Rank 3)
-			[3747]	= red, -- Power Word: Shield (Rank 4)
-			[6065]	= red, -- Power Word: Shield (Rank 5)
-			[6066]	= red, -- Power Word: Shield (Rank 6)
-			[10898]	= red, -- Power Word: Shield (Rank 7)
-			[10899]	= red, -- Power Word: Shield (Rank 8)
-			[10900]	= red, -- Power Word: Shield (Rank 9)
-			[10901]	= red, -- Power Word: Shield (Rank 10)
-			[25217]	= red, -- Power Word: Shield (Rank 11)
-			[25218]	= red, -- Power Word: Shield (Rank 12)
-			[48065]	= red, -- Power Word: Shield (Rank 13)
-			[48066]	= red, -- Power Word: Shield (Rank 14)
+			[17]	= "heal", -- Power Word: Shield (Rank 1)
+			[592]	= "heal", -- Power Word: Shield (Rank 2)
+			[600]	= "heal", -- Power Word: Shield (Rank 3)
+			[3747]	= "heal", -- Power Word: Shield (Rank 4)
+			[6065]	= "heal", -- Power Word: Shield (Rank 5)
+			[6066]	= "heal", -- Power Word: Shield (Rank 6)
+			[10898]	= "heal", -- Power Word: Shield (Rank 7)
+			[10899]	= "heal", -- Power Word: Shield (Rank 8)
+			[10900]	= "heal", -- Power Word: Shield (Rank 9)
+			[10901]	= "heal", -- Power Word: Shield (Rank 10)
+			[25217]	= "heal", -- Power Word: Shield (Rank 11)
+			[25218]	= "heal", -- Power Word: Shield (Rank 12)
+			[48065]	= "heal", -- Power Word: Shield (Rank 13)
+			[48066]	= "heal", -- Power Word: Shield (Rank 14)
 			
-			[139]	= green, -- Renew (Rank 1)
-			[6074]	= green, -- Renew (Rank 2)
-			[6075]	= green, -- Renew (Rank 3)
-			[6076]	= green, -- Renew (Rank 4)
-			[6077]	= green, -- Renew (Rank 5)
-			[6078]	= green, -- Renew (Rank 6)
-			[10927]	= green, -- Renew (Rank 7)
-			[10928]	= green, -- Renew (Rank 8)
-			[10929]	= green, -- Renew (Rank 9)
-			[25315]	= green, -- Renew (Rank 10)
-			[25221]	= green, -- Renew (Rank 11)
-			[25222]	= green, -- Renew (Rank 12)
-			[48067]	= green, -- Renew (Rank 13)
-			[48068]	= green, -- Renew (Rank 14)
+			[139]	= "heal", -- Renew (Rank 1)
+			[6074]	= "heal", -- Renew (Rank 2)
+			[6075]	= "heal", -- Renew (Rank 3)
+			[6076]	= "heal", -- Renew (Rank 4)
+			[6077]	= "heal", -- Renew (Rank 5)
+			[6078]	= "heal", -- Renew (Rank 6)
+			[10927]	= "heal", -- Renew (Rank 7)
+			[10928]	= "heal", -- Renew (Rank 8)
+			[10929]	= "heal", -- Renew (Rank 9)
+			[25315]	= "heal", -- Renew (Rank 10)
+			[25221]	= "heal", -- Renew (Rank 11)
+			[25222]	= "heal", -- Renew (Rank 12)
+			[48067]	= "heal", -- Renew (Rank 13)
+			[48068]	= "heal", -- Renew (Rank 14)
 		},
 		["SHAMAN"] = {
-			[974]  	= orange, 		-- Earth Shield (Rank 1)
-			[32593]	= orange, 		-- Earth Shield (Rank 2)
-			[32594]	= orange, 		-- Earth Shield (Rank 3)
+			[974]  	= "heal", -- Earth Shield (Rank 1)
+			[32593]	= "heal", -- Earth Shield (Rank 2)
+			[32594]	= "heal", -- Earth Shield (Rank 3)
 
-			[30708]	= red,			-- Totem of Wrath (Rank 1)
+			[30708]	= "raid", -- Totem of Wrath (Rank 1)
 			
-			[29203]	= blue_mana,	-- Healing Way
+			[29203]	= "heal", -- Healing Way
 
-			[16237]	= blue,			-- Ancestral Fortitude
+			[16237]	= "buff", -- Ancestral Fortitude
 
-			[25909]	= tranquil_air, -- Tranquil Air
+			[25909]	= "raid", -- Tranquil Air
 
-			[8185] 	= red,	-- Fire Resistance Totem (Rank 1)
-			[10534]	= red,	-- Fire Resistance Totem (Rank 2)
-			[10535]	= red,	-- Fire Resistance Totem (Rank 3)
-			[25562]	= red,	-- Fire Resistance Totem (Rank 4)
+			[8185] 	= "raid", -- Fire Resistance Totem (Rank 1)
+			[10534]	= "raid", -- Fire Resistance Totem (Rank 2)
+			[10535]	= "raid", -- Fire Resistance Totem (Rank 3)
+			[25562]	= "raid", -- Fire Resistance Totem (Rank 4)
 
-			[8182] 	= blue_mana,	-- Frost Resistance Totem (Rank 1)
-			[10476]	= blue_mana,	-- Frost Resistance Totem (Rank 2)
-			[10477]	= blue_mana,	-- Frost Resistance Totem (Rank 3)
-			[25559]	= blue_mana,	-- Frost Resistance Totem (Rank 4)
+			[8182] 	= "raid", -- Frost Resistance Totem (Rank 1)
+			[10476]	= "raid", -- Frost Resistance Totem (Rank 2)
+			[10477]	= "raid", -- Frost Resistance Totem (Rank 3)
+			[25559]	= "raid", -- Frost Resistance Totem (Rank 4)
 
-			[10596]	= nature_totem, -- Nature Resistance Totem (Rank 1)
-			[10598]	= nature_totem, -- Nature Resistance Totem (Rank 2)
-			[10599]	= nature_totem, -- Nature Resistance Totem (Rank 3)
-			[25573]	= nature_totem, -- Nature Resistance Totem (Rank 4)
+			[10596]	= "raid", -- Nature Resistance Totem (Rank 1)
+			[10598]	= "raid", -- Nature Resistance Totem (Rank 2)
+			[10599]	= "raid", -- Nature Resistance Totem (Rank 3)
+			[25573]	= "raid", -- Nature Resistance Totem (Rank 4)
 
-			[5672] 	= turquoise, -- Healing Stream Totem (Rank 1)
-			[6371] 	= turquoise, -- Healing Stream Totem (Rank 2)
-			[6372] 	= turquoise, -- Healing Stream Totem (Rank 3)
-			[10460]	= turquoise, -- Healing Stream Totem (Rank 4)
-			[10461]	= turquoise, -- Healing Stream Totem (Rank 5)
-			[25566]	= turquoise, -- Healing Stream Totem (Rank 6)
+			[5672] 	= "heal", -- Healing Stream Totem (Rank 1)
+			[6371] 	= "heal", -- Healing Stream Totem (Rank 2)
+			[6372] 	= "heal", -- Healing Stream Totem (Rank 3)
+			[10460]	= "heal", -- Healing Stream Totem (Rank 4)
+			[10461]	= "heal", -- Healing Stream Totem (Rank 5)
+			[25566]	= "heal", -- Healing Stream Totem (Rank 6)
 
-			[5677] 	= aquamarine, -- Mana Spring Totem (Rank 1)
-			[10491]	= aquamarine, -- Mana Spring Totem (Rank 2)
-			[10493]	= aquamarine, -- Mana Spring Totem (Rank 3)
-			[10494]	= aquamarine, -- Mana Spring Totem (Rank 4)
-			[25569]	= aquamarine, -- Mana Spring Totem (Rank 5)
+			[5677] 	= "buff", -- Mana Spring Totem (Rank 1)
+			[10491]	= "buff", -- Mana Spring Totem (Rank 2)
+			[10493]	= "buff", -- Mana Spring Totem (Rank 3)
+			[10494]	= "buff", -- Mana Spring Totem (Rank 4)
+			[25569]	= "buff", -- Mana Spring Totem (Rank 5)
 
-			[8072] 	= green_yellow, -- Stoneskin Totem (Rank 1)
-			[8156] 	= green_yellow, -- Stoneskin Totem (Rank 2)
-			[8157] 	= green_yellow, -- Stoneskin Totem (Rank 3)
-			[10403]	= green_yellow, -- Stoneskin Totem (Rank 4)
-			[10404]	= green_yellow, -- Stoneskin Totem (Rank 5)
-			[10405]	= green_yellow, -- Stoneskin Totem (Rank 6)
-			[25506]	= green_yellow, -- Stoneskin Totem (Rank 7)
-			[25507]	= green_yellow, -- Stoneskin Totem (Rank 8)
+			[8072] 	= "raid", -- Stoneskin Totem (Rank 1)
+			[8156] 	= "raid", -- Stoneskin Totem (Rank 2)
+			[8157] 	= "raid", -- Stoneskin Totem (Rank 3)
+			[10403]	= "raid", -- Stoneskin Totem (Rank 4)
+			[10404]	= "raid", -- Stoneskin Totem (Rank 5)
+			[10405]	= "raid", -- Stoneskin Totem (Rank 6)
+			[25506]	= "raid", -- Stoneskin Totem (Rank 7)
+			[25507]	= "raid", -- Stoneskin Totem (Rank 8)
 
-			[8076] 	= brown, -- Strength of Earth Totem (Rank 1)
-			[8162] 	= brown, -- Strength of Earth Totem (Rank 2)
-			[8163] 	= brown, -- Strength of Earth Totem (Rank 3)
-			[10441]	= brown, -- Strength of Earth Totem (Rank 4)
-			[25362]	= brown, -- Strength of Earth Totem (Rank 5)
-			[25527]	= brown, -- Strength of Earth Totem (Rank 6)
+			[8076] 	= "raid", -- Strength of Earth Totem (Rank 1)
+			[8162] 	= "raid", -- Strength of Earth Totem (Rank 2)
+			[8163] 	= "raid", -- Strength of Earth Totem (Rank 3)
+			[10441]	= "raid", -- Strength of Earth Totem (Rank 4)
+			[25362]	= "raid", -- Strength of Earth Totem (Rank 5)
+			[25527]	= "raid", -- Strength of Earth Totem (Rank 6)
 
-			[8836] 	= green_spring, -- Grace of Air Totem (Rank 1)
-			[10626]	= green_spring, -- Grace of Air Totem (Rank 2)
-			[25360]	= green_spring, -- Grace of Air Totem (Rank 3)
-			[2895] 	= green_spring, -- Wrath of Air Totem (Rank 1)
+			[8836] 	= "raid", -- Grace of Air Totem (Rank 1)
+			[10626]	= "raid", -- Grace of Air Totem (Rank 2)
+			[25360]	= "raid", -- Grace of Air Totem (Rank 3)
+			[2895] 	= "raid", -- Wrath of Air Totem (Rank 1)
 		},
 		["WARLOCK"] = {
-			[5597] 	= green_spring, -- Unending Breath
+			[5597] 	= "raid", -- Unending Breath
 
-			[6307] 	= red, -- Blood Pact (Rank 1)
-			[7804] 	= red, -- Blood Pact (Rank 2)
-			[7805] 	= red, -- Blood Pact (Rank 3)
-			[11766]	= red, -- Blood Pact (Rank 4)
-			[11767]	= red, -- Blood Pact (Rank 5)
+			[6307] 	= "raid", -- Blood Pact (Rank 1)
+			[7804] 	= "raid", -- Blood Pact (Rank 2)
+			[7805] 	= "raid", -- Blood Pact (Rank 3)
+			[11766]	= "raid", -- Blood Pact (Rank 4)
+			[11767]	= "raid", -- Blood Pact (Rank 5)
 
-			[132] 	= aquamarine, -- Detect Lesser Invisibility (Classic) / Detect Invisibility
-			[2970] 	= aquamarine, -- Detect Invisibility
-			[11743]	= aquamarine, -- Detect Greater Invisibility
-			[19480]	= aquamarine, -- Paranoia
+			[132] 	= "raid", -- Detect Lesser Invisibility (Classic) / Detect Invisibility
+			[2970] 	= "raid", -- Detect Invisibility
+			[11743]	= "raid", -- Detect Greater Invisibility
+			[19480]	= "raid", -- Paranoia
 		},
 		["WARRIOR"] = {
-			[469]  	= purple, -- Commanding Shout
+			[469]  	= "raid", -- Commanding Shout
 
-			[6673] 	= gray, -- Battle Shout (Rank 1)
-			[5242] 	= gray, -- Battle Shout (Rank 2)
-			[6192] 	= gray, -- Battle Shout (Rank 3)
-			[11549]	= gray, -- Battle Shout (Rank 4)
-			[11550]	= gray, -- Battle Shout (Rank 5)
-			[11551]	= gray, -- Battle Shout (Rank 6)
-			[25289]	= gray, -- Battle Shout (Rank 7)
-			[2048] 	= gray, -- Battle Shout (Rank 8)
+			[6673] 	= "raid", -- Battle Shout (Rank 1)
+			[5242] 	= "raid", -- Battle Shout (Rank 2)
+			[6192] 	= "raid", -- Battle Shout (Rank 3)
+			[11549]	= "raid", -- Battle Shout (Rank 4)
+			[11550]	= "raid", -- Battle Shout (Rank 5)
+			[11551]	= "raid", -- Battle Shout (Rank 6)
+			[25289]	= "raid", -- Battle Shout (Rank 7)
+			[2048] 	= "raid", -- Battle Shout (Rank 8)
 		}
 	}
 
@@ -529,33 +643,33 @@ else
 	--------------------------------------------------
 	if oUF.isClassic then
 		-- DRUID
-		spells["DRUID"][408120] = wild_growth -- Wild Growth
-		spells["DRUID"][408124] = gray_dark -- Lifebloom
-		spells["DRUID"][414680] = purple -- Living Seed
+		spells["DRUID"][408120] = "heal" -- Wild Growth
+		spells["DRUID"][408124] = "heal" -- Lifebloom
+		spells["DRUID"][414680] = "heal" -- Living Seed
 
 		-- MAGE
-		spells["MAGE"][400735] = violet -- Temporal Beacon
-		spells["MAGE"][401417] = green -- Regeneration
-		spells["MAGE"][412510] = green_yellow -- Mass Regeneration
+		spells["MAGE"][400735] = "heal" -- Temporal Beacon
+		spells["MAGE"][401417] = "heal" -- Regeneration
+		spells["MAGE"][412510] = "heal" -- Mass Regeneration
 		
 		-- PALADIN
-		spells["PALADIN"][407613] = violet -- Beacon of Light
+		spells["PALADIN"][407613] = "heal" -- Beacon of Light
 
 		-- PRIEST
-		spells["PRIEST"][401877] = violet -- Prayer of Mending
+		spells["PRIEST"][401877] = "heal" -- Prayer of Mending
 		
 		-- SHAMAN
-		spells["SHAMAN"][408514] = orange -- Earth Shield
-		spells["SHAMAN"][415236] = aquamarine -- Healing Rain
+		spells["SHAMAN"][408514] = "heal" -- Earth Shield
+		spells["SHAMAN"][415236] = "heal" -- Healing Rain
 	end
 end
 
 local function CreateButton(element, index)
 	local button = CreateFrame("Button", element:GetDebugName() .. "Button" .. index, element)
 
-	local backdrop = button:CreateTexture(nil, "BACKGROUND")
-	backdrop:SetPoint("TOPLEFT", button, -1, 1)
-	backdrop:SetPoint("BOTTOMRIGHT", button, 1, -1)
+	if button.CreateBackdrop then
+		button:CreateBackdrop()
+	end
 	
 	local cd = CreateFrame("Cooldown", "$parentCooldown", button, "CooldownFrameTemplate")
 	cd:SetAllPoints()
@@ -573,7 +687,6 @@ local function CreateButton(element, index)
 	local count = countFrame:CreateFontString(nil, "OVERLAY", "NumberFontNormal")
 	count:SetPoint("BOTTOMRIGHT", countFrame, "BOTTOMRIGHT", -1, 0)
 	
-	button.Backdrop = backdrop
 	button.Cooldown = cd
 	button.Icon = icon
 	button.Count = count
@@ -646,16 +759,9 @@ local function Update(element, unit, data, position)
 		element.createdButtons = element.createdButtons + 1
 	end
 
-	local color = element.spells[data.spellId] or oUF:CreateColor(1, 1, 1)
-
 	-- for tooltips
 	button.auraInstanceID = data.auraInstanceID
 	button.isHarmful = data.isHarmful
-
-	if (button.Backdrop) then
-		local mu = 0.15
-		button.Backdrop:SetColorTexture(color.r * mu, color.g * mu, color.b * mu)
-	end
 
 	if (button.Cooldown and not element.disableCooldown) then
 		if (data.duration > 0) then
@@ -667,11 +773,7 @@ local function Update(element, unit, data, position)
 	end
 
 	if (button.Icon) then
-		if (element.icons) then
-			button.Icon:SetTexture(data.icon)
-		else
-			button.Icon:SetColorTexture(color.r, color.g, color.b)
-		end
+		button.Icon:SetTexture(data.icon)
 	end
 
 	if (button.Count) then
@@ -698,7 +800,14 @@ local function Update(element, unit, data, position)
 end
 
 local function FilterAura(element, unit, data)
-	return data.isPlayerAura and (element.spells[data.spellId] ~= nil)
+	if element.onlyShowPlayer then
+		return data.isPlayerAura and (element.type ~= nil)
+	end
+	
+	if data.type == "heal" or data.type == "buff" or data.type == true then
+		return data.isPlayerAura
+	end
+	return data.type ~= nil
 end
 
 local function SortAuras(a, b)
@@ -717,6 +826,14 @@ local function ProcessData(element, unit, data)
 	if (not data) then return end
 
 	data.isPlayerAura = data.sourceUnit and (UnitIsUnit("player", data.sourceUnit) or UnitIsOwnerOrControllerOfUnit("player", data.sourceUnit))
+	
+	if data.sourceUnit == "player" then
+		data.sourceClass = class
+		data.type = element.spells[data.spellId]
+	elseif data.sourceUnit then
+		data.sourceClass = select(2, UnitClass(data.sourceUnit))
+		data.type = (spells[data.sourceClass] or {})[data.spellId]
+	end
 
 	--[[ Callback: AuraTrack:PostProcessAuraData(unit, data)
 	Called after the aura data has been processed.
@@ -875,9 +992,8 @@ local function Enable(self)
 		element.createdButtons = element.createdButtons or 0
 		element.anchoredButtons = 0
 		element.visibleButtons = 0
-		element.onlyShowPlayer = (type(element.onlyShowPlayer) == "boolean" and element.onlyShowPlayer) or (type(element.onlyShowPlayer) ~= "boolean" and true)
-		element.spells = element.spells or spells[class] or {}
-		element.icons = element.icons or false
+		element.onlyShowPlayer = ((type(element.onlyShowPlayer) == "boolean") and element.onlyShowPlayer) or false
+		element.spells = Mixin(spells[class] or {}, element.spells or {})
 
 		self:RegisterEvent("UNIT_AURA", Path)
 
