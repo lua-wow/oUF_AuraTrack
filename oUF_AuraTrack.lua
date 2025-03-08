@@ -403,14 +403,14 @@ else
 			[64495]	= "buff", -- Furious Howl (Rank 6)
 		},
 		["MAGE"] = {
-			[1459]	= "raid", -- Arcane Intellect (Rank 1)
-			[1460]	= "raid", -- Arcane Intellect (Rank 2)
-			[1461]	= "raid", -- Arcane Intellect (Rank 3)
-			[10156] = "raid", -- Arcane Intellect (Rank 4)
-			[10157] = "raid", -- Arcane Intellect (Rank 5)
-			[27126] = "raid", -- Arcane Intellect (Rank 6)
-			[23028] = "raid", -- Arcane Brilliance (Rank 1)
-			[27127] = "raid", -- Arcane Brilliance (Rank 2)
+			[1459]	= (class == "MAGE") and "raid" or nil, -- Arcane Intellect (Rank 1)
+			[1460]	= (class == "MAGE") and "raid" or nil, -- Arcane Intellect (Rank 2)
+			[1461]	= (class == "MAGE") and "raid" or nil, -- Arcane Intellect (Rank 3)
+			[10156] = (class == "MAGE") and "raid" or nil, -- Arcane Intellect (Rank 4)
+			[10157] = (class == "MAGE") and "raid" or nil, -- Arcane Intellect (Rank 5)
+			[27126] = (class == "MAGE") and "raid" or nil, -- Arcane Intellect (Rank 6)
+			[23028] = (class == "MAGE") and "raid" or nil, -- Arcane Brilliance (Rank 1)
+			[27127] = (class == "MAGE") and "raid" or nil, -- Arcane Brilliance (Rank 2)
 
 			[604]	= "buff", -- Dampen Magic (Rank 1)
 			[8450]	= "buff", -- Dampen Magic (Rank 2)
@@ -486,67 +486,67 @@ else
 			[28795]	= "buff", -- Holy Power (mana regeneration)
 		},
 		["PRIEST"] = {
-			[1243]	= "raid", -- Power Word: Fortitude (Rank 1)
-			[1244] 	= "raid", -- Power Word: Fortitude (Rank 2)
-			[1245] 	= "raid", -- Power Word: Fortitude (Rank 3)
-			[2791] 	= "raid", -- Power Word: Fortitude (Rank 4)
-			[10937]	= "raid", -- Power Word: Fortitude (Rank 5)
-			[10938]	= "raid", -- Power Word: Fortitude (Rank 6)
-			[25389]	= "raid", -- Power Word: Fortitude (Rank 7)
-			[48161]	= "raid", -- Power Word: Fortitude (Rank 8)
-			[21562]	= "raid", -- Prayer of Fortitude (Rank 1)
-			[21564]	= "raid", -- Prayer of Fortitude (Rank 2)
-			[25392]	= "raid", -- Prayer of Fortitude (Rank 3)
-			[48162]	= "raid", -- Prayer of Fortitude (Rank 4)
+			[1243]	= (class == "PRIEST") and "raid" or nil, -- Power Word: Fortitude (Rank 1)
+			[1244] 	= (class == "PRIEST") and "raid" or nil, -- Power Word: Fortitude (Rank 2)
+			[1245] 	= (class == "PRIEST") and "raid" or nil, -- Power Word: Fortitude (Rank 3)
+			[2791] 	= (class == "PRIEST") and "raid" or nil, -- Power Word: Fortitude (Rank 4)
+			[10937]	= (class == "PRIEST") and "raid" or nil, -- Power Word: Fortitude (Rank 5)
+			[10938]	= (class == "PRIEST") and "raid" or nil, -- Power Word: Fortitude (Rank 6)
+			[25389]	= (class == "PRIEST") and "raid" or nil, -- Power Word: Fortitude (Rank 7)
+			[48161]	= (class == "PRIEST") and "raid" or nil, -- Power Word: Fortitude (Rank 8)
+			[21562]	= (class == "PRIEST") and "raid" or nil, -- Prayer of Fortitude (Rank 1)
+			[21564]	= (class == "PRIEST") and "raid" or nil, -- Prayer of Fortitude (Rank 2)
+			[25392]	= (class == "PRIEST") and "raid" or nil, -- Prayer of Fortitude (Rank 3)
+			[48162]	= (class == "PRIEST") and "raid" or nil, -- Prayer of Fortitude (Rank 4)
 
-			[14752]	= "raid", -- Divine Spirit (Rank 1)
-			[14818]	= "raid", -- Divine Spirit (Rank 2)
-			[14819]	= "raid", -- Divine Spirit (Rank 3)
-			[27841]	= "raid", -- Divine Spirit (Rank 4)
-			[25312]	= "raid", -- Divine Spirit (Rank 5)
-			[48073]	= "raid", -- Divine Spirit (Rank 6)
-			[27681]	= "raid", -- Prayer of Spirit (Rank 1)
-			[32999]	= "raid", -- Prayer of Spirit (Rank 2)
-			[48074]	= "raid", -- Prayer of Spirit (Rank 3)
+			[14752]	= (class == "PRIEST") and "raid" or nil, -- Divine Spirit (Rank 1)
+			[14818]	= (class == "PRIEST") and "raid" or nil, -- Divine Spirit (Rank 2)
+			[14819]	= (class == "PRIEST") and "raid" or nil, -- Divine Spirit (Rank 3)
+			[27841]	= (class == "PRIEST") and "raid" or nil, -- Divine Spirit (Rank 4)
+			[25312]	= (class == "PRIEST") and "raid" or nil, -- Divine Spirit (Rank 5)
+			[48073]	= (class == "PRIEST") and "raid" or nil, -- Divine Spirit (Rank 6)
+			[27681]	= (class == "PRIEST") and "raid" or nil, -- Prayer of Spirit (Rank 1)
+			[32999]	= (class == "PRIEST") and "raid" or nil, -- Prayer of Spirit (Rank 2)
+			[48074]	= (class == "PRIEST") and "raid" or nil, -- Prayer of Spirit (Rank 3)
 
-			[976]	= "raid", -- Shadow Protection (Rank 1)
-			[10957]	= "raid", -- Shadow Protection (Rank 2)
-			[10958]	= "raid", -- Shadow Protection (Rank 3)
-			[25433]	= "raid", -- Shadow Protection (Rank 4)
-			[48169]	= "raid", -- Shadow Protection (Rank 5)
-			[27683]	= "raid", -- Prayer of Shadow Protection (Rank 1)
-			[39374]	= "raid", -- Prayer of Shadow Protection (Rank 2)
-			[48170]	= "raid", -- Prayer of Shadow Protection (Rank 3)
+			[976]	= (class == "PRIEST") and "raid" or nil, -- Shadow Protection (Rank 1)
+			[10957]	= (class == "PRIEST") and "raid" or nil, -- Shadow Protection (Rank 2)
+			[10958]	= (class == "PRIEST") and "raid" or nil, -- Shadow Protection (Rank 3)
+			[25433]	= (class == "PRIEST") and "raid" or nil, -- Shadow Protection (Rank 4)
+			[48169]	= (class == "PRIEST") and "raid" or nil, -- Shadow Protection (Rank 5)
+			[27683]	= (class == "PRIEST") and "raid" or nil, -- Prayer of Shadow Protection (Rank 1)
+			[39374]	= (class == "PRIEST") and "raid" or nil, -- Prayer of Shadow Protection (Rank 2)
+			[48170]	= (class == "PRIEST") and "raid" or nil, -- Prayer of Shadow Protection (Rank 3)
 
-			[17]	= "heal", -- Power Word: Shield (Rank 1)
-			[592]	= "heal", -- Power Word: Shield (Rank 2)
-			[600]	= "heal", -- Power Word: Shield (Rank 3)
-			[3747]	= "heal", -- Power Word: Shield (Rank 4)
-			[6065]	= "heal", -- Power Word: Shield (Rank 5)
-			[6066]	= "heal", -- Power Word: Shield (Rank 6)
-			[10898]	= "heal", -- Power Word: Shield (Rank 7)
-			[10899]	= "heal", -- Power Word: Shield (Rank 8)
-			[10900]	= "heal", -- Power Word: Shield (Rank 9)
-			[10901]	= "heal", -- Power Word: Shield (Rank 10)
-			[25217]	= "heal", -- Power Word: Shield (Rank 11)
-			[25218]	= "heal", -- Power Word: Shield (Rank 12)
-			[48065]	= "heal", -- Power Word: Shield (Rank 13)
-			[48066]	= "heal", -- Power Word: Shield (Rank 14)
+			[17]	= oUF.isClassic and "raid" or "heal", -- Power Word: Shield (Rank 1)
+			[592]	= oUF.isClassic and "raid" or "heal", -- Power Word: Shield (Rank 2)
+			[600]	= oUF.isClassic and "raid" or "heal", -- Power Word: Shield (Rank 3)
+			[3747]	= oUF.isClassic and "raid" or "heal", -- Power Word: Shield (Rank 4)
+			[6065]	= oUF.isClassic and "raid" or "heal", -- Power Word: Shield (Rank 5)
+			[6066]	= oUF.isClassic and "raid" or "heal", -- Power Word: Shield (Rank 6)
+			[10898]	= oUF.isClassic and "raid" or "heal", -- Power Word: Shield (Rank 7)
+			[10899]	= oUF.isClassic and "raid" or "heal", -- Power Word: Shield (Rank 8)
+			[10900]	= oUF.isClassic and "raid" or "heal", -- Power Word: Shield (Rank 9)
+			[10901]	= oUF.isClassic and "raid" or "heal", -- Power Word: Shield (Rank 10)
+			[25217]	= oUF.isClassic and "raid" or "heal", -- Power Word: Shield (Rank 11)
+			[25218]	= oUF.isClassic and "raid" or "heal", -- Power Word: Shield (Rank 12)
+			[48065]	= oUF.isClassic and "raid" or "heal", -- Power Word: Shield (Rank 13)
+			[48066]	= oUF.isClassic and "raid" or "heal", -- Power Word: Shield (Rank 14)
 			
-			[139]	= "heal", -- Renew (Rank 1)
-			[6074]	= "heal", -- Renew (Rank 2)
-			[6075]	= "heal", -- Renew (Rank 3)
-			[6076]	= "heal", -- Renew (Rank 4)
-			[6077]	= "heal", -- Renew (Rank 5)
-			[6078]	= "heal", -- Renew (Rank 6)
-			[10927]	= "heal", -- Renew (Rank 7)
-			[10928]	= "heal", -- Renew (Rank 8)
-			[10929]	= "heal", -- Renew (Rank 9)
-			[25315]	= "heal", -- Renew (Rank 10)
-			[25221]	= "heal", -- Renew (Rank 11)
-			[25222]	= "heal", -- Renew (Rank 12)
-			[48067]	= "heal", -- Renew (Rank 13)
-			[48068]	= "heal", -- Renew (Rank 14)
+			[139]	= oUF.isClassic and "raid" or "heal", -- Renew (Rank 1)
+			[6074]	= oUF.isClassic and "raid" or "heal", -- Renew (Rank 2)
+			[6075]	= oUF.isClassic and "raid" or "heal", -- Renew (Rank 3)
+			[6076]	= oUF.isClassic and "raid" or "heal", -- Renew (Rank 4)
+			[6077]	= oUF.isClassic and "raid" or "heal", -- Renew (Rank 5)
+			[6078]	= oUF.isClassic and "raid" or "heal", -- Renew (Rank 6)
+			[10927]	= oUF.isClassic and "raid" or "heal", -- Renew (Rank 7)
+			[10928]	= oUF.isClassic and "raid" or "heal", -- Renew (Rank 8)
+			[10929]	= oUF.isClassic and "raid" or "heal", -- Renew (Rank 9)
+			[25315]	= oUF.isClassic and "raid" or "heal", -- Renew (Rank 10)
+			[25221]	= oUF.isClassic and "raid" or "heal", -- Renew (Rank 11)
+			[25222]	= oUF.isClassic and "raid" or "heal", -- Renew (Rank 12)
+			[48067]	= oUF.isClassic and "raid" or "heal", -- Renew (Rank 13)
+			[48068]	= oUF.isClassic and "raid" or "heal", -- Renew (Rank 14)
 		},
 		["SHAMAN"] = {
 			[974]  	= "heal", -- Earth Shield (Rank 1)
@@ -627,14 +627,14 @@ else
 		["WARRIOR"] = {
 			[469]  	= "raid", -- Commanding Shout
 
-			[6673] 	= "raid", -- Battle Shout (Rank 1)
-			[5242] 	= "raid", -- Battle Shout (Rank 2)
-			[6192] 	= "raid", -- Battle Shout (Rank 3)
-			[11549]	= "raid", -- Battle Shout (Rank 4)
-			[11550]	= "raid", -- Battle Shout (Rank 5)
-			[11551]	= "raid", -- Battle Shout (Rank 6)
-			[25289]	= "raid", -- Battle Shout (Rank 7)
-			[2048] 	= "raid", -- Battle Shout (Rank 8)
+			[6673] 	= (class == "WARRIOR") and "raid" or nil, -- Battle Shout (Rank 1)
+			[5242] 	= (class == "WARRIOR") and "raid" or nil, -- Battle Shout (Rank 2)
+			[6192] 	= (class == "WARRIOR") and "raid" or nil, -- Battle Shout (Rank 3)
+			[11549]	= (class == "WARRIOR") and "raid" or nil, -- Battle Shout (Rank 4)
+			[11550]	= (class == "WARRIOR") and "raid" or nil, -- Battle Shout (Rank 5)
+			[11551]	= (class == "WARRIOR") and "raid" or nil, -- Battle Shout (Rank 6)
+			[25289]	= (class == "WARRIOR") and "raid" or nil, -- Battle Shout (Rank 7)
+			[2048] 	= (class == "WARRIOR") and "raid" or nil, -- Battle Shout (Rank 8)
 		}
 	}
 
@@ -817,6 +817,17 @@ local function SortAuras(a, b)
 
 	if (a.canApplyAura ~= b.canApplyAura) then
 		return a.canApplyAura
+	end
+
+	-- if aura 'duration' is 'nil' or '0', it do not expires
+	local aExpires = a.duration and a.duration > 0
+	local bExpires = b.duration and b.duration > 0
+	if (aExpires ~= bExpires) then
+		return aExpires
+	end
+
+	if (aExpires and bExpires and a.duration ~= b.duration) then
+		return a.duration < b.duration
 	end
 
 	return a.auraInstanceID < b.auraInstanceID
