@@ -265,6 +265,95 @@ if oUF.isRetail then
 			[184364] = "defensive", -- Enraged Regeneration
 		}
 	}
+elseif oUF.isMoP then
+	spells = {
+		["DRUID"] = {
+			[22812]  = "defensive", -- Barkskin
+
+			-- Balance
+			[29166]  = "raid", -- Inervate
+
+			-- Guardian
+			[22842]  = "defensive", -- Frenzied Regeneration
+			[61336]  = "defensive", -- Survival Instincts
+
+			-- Restoration
+			[740]    = "raid", -- Tranquility
+			[102342] = "raid", -- Ironbark
+			[774]    = "heal", -- Rejuvenation
+			[8936]   = "heal", -- Regrowth
+			[33763]  = "heal", -- Lifebloom
+			[48438]  = "heal", -- Wild Growth
+			[102351] = "heal", -- Cenarion Ward (Initial Buff)
+			[102352] = "heal", -- Cenarion Ward (HoT)
+		},
+		["DEATHKNIGHT"] = {
+			[57330] = "raid", -- Horn of Winter
+			[48792] = "defensive", -- Icebound Fortitude
+			[48707] = "defensive", -- Anti-Magic Shell
+			[49028] = "defensive", -- Dancing Rune Weapon
+			[49039] = "defensive", -- Lichborne
+			[55233] = "defensive", -- Vampiric Blood
+			[108200] = "defensive", -- Remorseless Winter
+		},
+		["MONK"] = {
+			-- Mistweaver
+			[116849] = "raid", -- Life Cocoon
+			[119611] = "heal", -- Renewing Mist
+			[124682] = "heal", -- Enveloping Mist
+			[124081] = "heal", -- Zen Sphere
+		},
+		["PALADIN"] = {
+			-- Holy
+			[1038]   = "raid", -- Hand of Salvation
+			[1022]  = "raid", -- Hand of Protection
+			[1044]  = "raid", -- Hand of Freedom
+			[6940]  = "raid", -- Hand of Sacrifice
+			[31821] = "raid", -- Aura Mastery
+			[53563] = "heal", -- Beacon of Light
+			[70940] = "defensive", -- Divine Guardian
+			[82327] = "heal", -- Holy Radiance
+			[86273] = "heal", -- Illuminated Healing
+
+			-- Protection
+			[31850] = "defensive", -- Ardent Defender
+			[204018] = "raid", -- Blessing of Spellwarding
+			[184662] = "defensive", -- Shield of Vengeance
+		},
+		["PRIEST"] = {
+			[17]    = "heal", -- Power Word: Shield
+			[139]   = "heal", -- Renew
+			[6346]  = "buff", -- Fear Ward
+			[10060] = "buff", -- Power Infusion
+
+			-- Discipline
+			[33206] = "raid", -- Pain Suppression
+			[81782] = "raid", -- Power World: Barrier
+			[109964] = "heal", -- Spirit Shell
+
+			-- Holy
+			[47788] = "raid", -- Guardian Spirit
+			[41635] = "heal", -- Prayer of Mending
+			[62618] = "raid", -- Power World: Barrier
+			[64844] = "raid", -- Divine Hymn
+		},
+		["ROGUE"] = {
+			[57934] = "raid", -- Tricks of the Trade
+		},
+		["SHAMAN"] = {
+			-- All
+			[108271] = "defensive", -- Astral Shift
+			-- Restoration
+			[974]	 = "heal", -- Earth Shield
+			[61295]  = "heal", -- Riptide
+			[98008]	 = "raid", -- Spirit Link Totem
+			[120668] = "raid", -- Stormlash Totem
+		},
+		["WARRIOR"] = {
+			[469]  = "raid", -- Commanding Shout
+			[6673] = "raid", -- Battle Shout
+		}
+	}
 elseif oUF.isCata then
 	spells = {
 		["DEATHKNIGHT"] = {
@@ -639,28 +728,43 @@ else
 	}
 
 	--------------------------------------------------
-	-- Season of Discovery (Phase 1 - Max Level 25)
+	-- Season of Dippscovery (Phase 1 - Max Level 25)
 	--------------------------------------------------
 	if oUF.isClassic then
-		-- DRUID
-		spells["DRUID"][408120] = "heal" -- Wild Growth
-		spells["DRUID"][408124] = "heal" -- Lifebloom
-		spells["DRUID"][414680] = "heal" -- Living Seed
+		local sod = {
+			["DRUID"] = {
+				[408120] = "heal", -- Wild Growth
+				[408124] = "heal", -- Lifebloom
+				[414680] = "heal", -- Living Seed
+			},
+			["MAGE"] = {
+				[400735] = "heal", -- Temporal Beacon
+				[401417] = "heal", -- Regeneration
+				[412510] = "heal" -- Mass Regeneration
+			},
+			["PALADIN"] = {
+				[407613] = "heal" -- Beacon of Light
+			},
+			["PRIEST"] = {
+				[401877] = "heal" -- Prayer of Mending
+			},
+			["SHAMAN"] = {
+				[408514] = "heal", -- Earth Shield
+				[415236] = "heal" -- Healing Rain
+			}
+		}
 
-		-- MAGE
-		spells["MAGE"][400735] = "heal" -- Temporal Beacon
-		spells["MAGE"][401417] = "heal" -- Regeneration
-		spells["MAGE"][412510] = "heal" -- Mass Regeneration
-		
-		-- PALADIN
-		spells["PALADIN"][407613] = "heal" -- Beacon of Light
+		for class, data in next, sod do
+			if not spells[class] then
+				spells[class] = {}
+			end
 
-		-- PRIEST
-		spells["PRIEST"][401877] = "heal" -- Prayer of Mending
-		
-		-- SHAMAN
-		spells["SHAMAN"][408514] = "heal" -- Earth Shield
-		spells["SHAMAN"][415236] = "heal" -- Healing Rain
+			for spellID, value in next, data do
+				if not spells[class][spellID] then
+					spells[class][spellID] = value
+				end
+			end
+		end
 	end
 end
 

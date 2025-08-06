@@ -1,4 +1,4 @@
-## Interface: 11506, 40400, 100207, 110107
+## Interface: 11507, 40400, 50500, 110107
 ## Author: Luaerror, Tukz
 ## Version: 1.4.2
 ## Title: oUF_AuraTrack
