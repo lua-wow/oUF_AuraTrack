@@ -302,6 +302,7 @@ elseif oUF.isMoP then
 			[119611] = "heal", -- Renewing Mist
 			[124682] = "heal", -- Enveloping Mist
 			[124081] = "heal", -- Zen Sphere
+			[136070] = "heal", -- Guard (Black Ox Statue)
 		},
 		["PALADIN"] = {
 			-- Holy
