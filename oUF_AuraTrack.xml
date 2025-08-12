@@ -1,0 +1,9 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/">
+	<Script file="auras/classic.lua"/>
+	<Script file="auras/tbc.lua"/>
+	<Script file="auras/wolk.lua"/>
+	<Script file="auras/cata.lua"/>
+	<Script file="auras/mists.lua"/>
+	<Script file="auras/retail.lua"/>
+	<Script file="oUF_AuraTrack.lua"/>
+</Ui>

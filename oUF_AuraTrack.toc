@@ -8,4 +8,4 @@
 ## X-Maintainer: Luaerror
 ## X-Website: https://github.com/lua-wow/oUF_AuraTrack
 
-oUF_AuraTrack.lua
+oUF_AuraTrack.xml
