@@ -1,6 +1,6 @@
 ## Interface: 11507, 40400, 50500, 110200
 ## Author: Luaerror, Tukz
-## Version: 1.4.2
+## Version: 1.5.0
 ## Title: oUF_AuraTrack
 ## Notes: Aura track on raid frame support for oUF lauouts.
 ## RequiredDeps: oUF
