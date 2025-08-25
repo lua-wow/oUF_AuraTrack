@@ -55,6 +55,7 @@ oUF.auras = {
         -- Brewmaster
         [115176] = "defensive", -- Zen Meditation
         [115203] = "defensive", -- Fortifying Brew
+        [115213] = "raid", -- Avert Harm
         [136070] = "heal", -- Guard (Black Ox Statue)
 
         -- Mistweaver
