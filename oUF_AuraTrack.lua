@@ -49,7 +49,6 @@ assert(oUF, "oUF_AuraTrack as unable to locate oUF install.")
 local _, class = UnitClass("player")
 
 local spells = oUF.auras or {}
-print(spells, spells.type)
 
 local function CreateButton(element, index)
 	local button = CreateFrame("Button", element:GetDebugName() .. "Button" .. index, element)
